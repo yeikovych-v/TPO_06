@@ -1,7 +1,5 @@
 package pl.pja.s28201.tpo_06.model;
 
-import net.datafaker.providers.base.Hobby;
-
 import java.time.LocalDate;
 
 public class Person {
