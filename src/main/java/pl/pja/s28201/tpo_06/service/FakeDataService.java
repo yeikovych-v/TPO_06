@@ -13,17 +13,16 @@ import java.util.List;
 @Service
 public class FakeDataService implements DataService {
 
-    private static final Faker FAKER = new Faker();
-
     @Override
     public List<Person> createPersonList(PersonDto dto) {
         List<Person> people = new ArrayList<>();
 
+        Faker faker = new Faker(Language.toLocale(dto.getLanguage()));
         for (int i = 0; i < dto.getPersonCount(); i++) {
             Person person = new Person();
-            fakeBasicData(person);
-            person.setLanguage(Language.fromString(dto.getLanguage()));
-            fakeAdditionalData(person, dto.isHasAddress(), dto.isHasCountry(), dto.isHasProfession(), dto.isHasLanguageProficiency(), dto.isHasHobby());
+            fakeBasicData(person, faker);
+            person.setLanguage(Language.fromLanguageString(dto.getLanguage()));
+            fakeAdditionalData(person, faker, dto.isHasAddress(), dto.isHasCountry(), dto.isHasProfession(), dto.isHasLanguageProficiency(), dto.isHasHobby());
 
             people.add(person);
         }
@@ -32,23 +31,24 @@ public class FakeDataService implements DataService {
     }
 
     private void fakeAdditionalData(Person person,
-                                    boolean hasAddress,
+                                    Faker faker, boolean hasAddress,
                                     boolean hasCountry,
                                     boolean hasProfession,
                                     boolean hasLanguageProficiency,
                                     boolean hasHobby) {
 
-        if (hasAddress) person.setAddress(FAKER.address().fullAddress());
-        if (hasCountry) person.setCountry(FAKER.address().country());
-        if (hasProfession) person.setProfession(FAKER.company().profession());
-        if (hasLanguageProficiency) person.setLanguageProficiency(LanguageProficiency.values()[FAKER.number().numberBetween(0, 6)]);
-        if (hasHobby) person.setHobby(FAKER.hobby().activity());
+        if (hasAddress) person.setAddress(faker.address().fullAddress());
+        if (hasCountry) person.setCountry(faker.address().country());
+        if (hasProfession) person.setProfession(faker.company().profession());
+        if (hasLanguageProficiency)
+            person.setLanguageProficiency(faker.options().option(LanguageProficiency.class));
+        if (hasHobby) person.setHobby(faker.hobby().activity());
 
     }
 
-    private void fakeBasicData(Person person) {
-        person.setFirstName(FAKER.name().firstName());
-        person.setLastName(FAKER.name().lastName());
-        person.setDateOfBirth(FAKER.date().birthdayLocalDate(8, 356));
+    private void fakeBasicData(Person person, Faker faker) {
+        person.setFirstName(faker.name().firstName());
+        person.setLastName(faker.name().lastName());
+        person.setDateOfBirth(faker.date().birthdayLocalDate(8, 356));
     }
 }
